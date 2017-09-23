@@ -12678,27 +12678,63 @@ Default GPU Device: /gpu:0
 </div>
 </div>
 </div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="How-I-obtained-following-parameters:">How I obtained following parameters:<a class="anchor-link" href="#How-I-obtained-following-parameters:">&#182;</a></h2><p>I used the following setup as benchmark:</p>
+
+<pre><code>epochs = 4 
+batch_size = 256
+rnn_size = 512 
+num_layers = 3
+encoding_embedding_size = 300
+decoding_embedding_size = 300
+learning_rate = 0.005
+keep_probability = 0.75</code></pre>
+<h4 id="Final-values">Final values<a class="anchor-link" href="#Final-values">&#182;</a></h4><ul>
+<li><code>epochs = 4</code> - validation accuracy stays at ~95%, longer training would overfit and cause validation accuracy to drop</li>
+<li><code>batch_size = 256</code> # fits in my GPU</li>
+</ul>
+<ul>
+<li><p><code>rnn_size = 512</code> - is big enough to learn quite fast (under 5 min. with 3 layers) on the small dataset used in this project, The <a href="https://www.tensorflow.org/tutorials/seq2seq">https://www.tensorflow.org/tutorials/seq2seq</a> example is using 1024. Lowering it to 256 almost halved the trainign time (from 4min 27s to 2min 37s) at the cost of 3 percent points. Since I find 5 minutes of training an acceptable value (or the 3 points tradeoff not worth the 2 minutes) I leave it as such.</p>
+</li>
+<li><p><code>num_layers = 2</code> - 3 is considered an optimal value for most rnn applications (increasing it further though often brings no benefits), it's also a value used in seq2seq tutorial <a href="https://www.tensorflow.org/tutorials/seq2seq">https://www.tensorflow.org/tutorials/seq2seq</a>. However I found that decreasing it to 2 decreases the training time from 4min 27s to  2min 55s at miniscule penelty of around 1 percent point so I left it as such.</p>
+</li>
+<li><p><code>learning_rate = 0.005</code> - Higher values caused accuracy to stall or drop, lower were taking too long to train</p>
+</li>
+<li><p><code>keep_probability = 0.75</code>  - without DD model started to decrease validation accuracy as soon as on 3rd epoch (even though it was already around 90% so I could just stop training) while higher values yielded poorer results or required more training time.</p>
+</li>
+</ul>
+<p>The embedding vector sizes probaly requires most explanation. The dataset used for this project has very small vocabulary of 227 English words (and similar number of French). So at first I tried with something like 30 for the embeddign size. It gave me rather poor results (~60% accuracy) and required quite lot of time for training. Since I used to work with word2vec before I jumped to 300 just to see how it would perform. Unsurprisingly it worked very well but what surprised me was the training time. It took just 10 seconds more to train 4 epochs (4min 34s vs 4min 24s) and the result was 97% validation accuracy. I realized that the performance is limited by cell state synchronization not the embedding vector size. Having ~200 words and 300 embeddign size is an overkill (it would take just 227 to one-hot encode them) so I decreased the embegging sizes to 100 another common word2vec value and I got ~97% accuracy (it took 4min 27s to train 4 epochs with benchmark parameters ceteris paribus). Since decreasing  it further brings no obvious benefit I'm leaving it at 100, a common word2vec value and robust enough even for larger vocabularies.</p>
+<ul>
+<li><code>encoding_embedding_size = 100</code>  </li>
+<li><code>decoding_embedding_size = 100</code> </li>
+</ul>
+
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[74]:</div>
+<div class="prompt input_prompt">In&nbsp;[102]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Number of Epochs</span>
-<span class="n">epochs</span> <span class="o">=</span> <span class="mi">4</span>  <span class="c1"># validation accuracy stays at ~93-95%, longer training would overfit and cause validation accuracy to drop</span>
+<span class="n">epochs</span> <span class="o">=</span> <span class="mi">4</span>  
 <span class="c1"># Batch Size</span>
-<span class="n">batch_size</span> <span class="o">=</span> <span class="mi">256</span> <span class="c1"># fits in my GPU</span>
+<span class="n">batch_size</span> <span class="o">=</span> <span class="mi">256</span> 
 <span class="c1"># RNN Size</span>
-<span class="n">rnn_size</span> <span class="o">=</span> <span class="mi">512</span> <span class="c1"># big enough to learn how to translate quite fast</span>
+<span class="n">rnn_size</span> <span class="o">=</span> <span class="mi">512</span> 
 <span class="c1"># Number of Layers</span>
-<span class="n">num_layers</span> <span class="o">=</span> <span class="mi">3</span> <span class="c1"># big enough to learn how to translate quite fast</span>
+<span class="n">num_layers</span> <span class="o">=</span> <span class="mi">2</span>
 <span class="c1"># Embedding Size</span>
-<span class="n">encoding_embedding_size</span> <span class="o">=</span> <span class="mi">300</span>  <span class="c1"># I&#39;m used to work with embedding vectors in 300D :)</span>
-<span class="n">decoding_embedding_size</span> <span class="o">=</span> <span class="mi">300</span>
+<span class="n">encoding_embedding_size</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">decoding_embedding_size</span> <span class="o">=</span> <span class="mi">100</span>
 <span class="c1"># Learning Rate</span>
-<span class="n">learning_rate</span> <span class="o">=</span> <span class="mf">0.005</span>          <span class="c1"># Higher lr caused accuracy to drop earlier, lower were taking too long to train</span>
+<span class="n">learning_rate</span> <span class="o">=</span> <span class="mf">0.005</span>
 <span class="c1"># Dropout Keep Probability</span>
-<span class="n">keep_probability</span> <span class="o">=</span> <span class="mf">0.75</span>  <span class="c1"># without DD it started to decrease validation accuracy as soon as on 3rd epich </span>
-                         <span class="c1"># (even though it was already around 90% so I could just stop training)</span>
+<span class="n">keep_probability</span> <span class="o">=</span> <span class="mf">0.75</span>
 <span class="n">display_step</span> <span class="o">=</span> <span class="mi">100</span>
 </pre></div>
 
@@ -12718,7 +12754,7 @@ Default GPU Device: /gpu:0
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[75]:</div>
+<div class="prompt input_prompt">In&nbsp;[103]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
@@ -12788,7 +12824,7 @@ Default GPU Device: /gpu:0
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[76]:</div>
+<div class="prompt input_prompt">In&nbsp;[104]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
@@ -12841,88 +12877,89 @@ Default GPU Device: /gpu:0
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[77]:</div>
+<div class="prompt input_prompt">In&nbsp;[105]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">DON&#39;T MODIFY ANYTHING IN THIS CELL</span>
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="k">def</span> <span class="nf">get_accuracy</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">logits</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Calculate accuracy</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">max_seq</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">logits</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-    <span class="k">if</span> <span class="n">max_seq</span> <span class="o">-</span> <span class="n">target</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
-        <span class="n">target</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span>
-            <span class="n">target</span><span class="p">,</span>
-            <span class="p">[(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),(</span><span class="mi">0</span><span class="p">,</span><span class="n">max_seq</span> <span class="o">-</span> <span class="n">target</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])],</span>
-            <span class="s1">&#39;constant&#39;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">max_seq</span> <span class="o">-</span> <span class="n">logits</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
-        <span class="n">logits</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span>
-            <span class="n">logits</span><span class="p">,</span>
-            <span class="p">[(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),(</span><span class="mi">0</span><span class="p">,</span><span class="n">max_seq</span> <span class="o">-</span> <span class="n">logits</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])],</span>
-            <span class="s1">&#39;constant&#39;</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">%%</span><span class="k">time</span>
+&quot;&quot;&quot;
+DON&#39;T MODIFY ANYTHING IN THIS CELL
+&quot;&quot;&quot;
+def get_accuracy(target, logits):
+    &quot;&quot;&quot;
+    Calculate accuracy
+    &quot;&quot;&quot;
+    max_seq = max(target.shape[1], logits.shape[1])
+    if max_seq - target.shape[1]:
+        target = np.pad(
+            target,
+            [(0,0),(0,max_seq - target.shape[1])],
+            &#39;constant&#39;)
+    if max_seq - logits.shape[1]:
+        logits = np.pad(
+            logits,
+            [(0,0),(0,max_seq - logits.shape[1])],
+            &#39;constant&#39;)
 
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">logits</span><span class="p">))</span>
+    return np.mean(np.equal(target, logits))
 
-<span class="c1"># Split data to training and validation sets</span>
-<span class="n">train_source</span> <span class="o">=</span> <span class="n">source_int_text</span><span class="p">[</span><span class="n">batch_size</span><span class="p">:]</span>
-<span class="n">train_target</span> <span class="o">=</span> <span class="n">target_int_text</span><span class="p">[</span><span class="n">batch_size</span><span class="p">:]</span>
-<span class="n">valid_source</span> <span class="o">=</span> <span class="n">source_int_text</span><span class="p">[:</span><span class="n">batch_size</span><span class="p">]</span>
-<span class="n">valid_target</span> <span class="o">=</span> <span class="n">target_int_text</span><span class="p">[:</span><span class="n">batch_size</span><span class="p">]</span>
-<span class="p">(</span><span class="n">valid_sources_batch</span><span class="p">,</span> <span class="n">valid_targets_batch</span><span class="p">,</span> <span class="n">valid_sources_lengths</span><span class="p">,</span> <span class="n">valid_targets_lengths</span> <span class="p">)</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">get_batches</span><span class="p">(</span><span class="n">valid_source</span><span class="p">,</span>
-                                                                                                             <span class="n">valid_target</span><span class="p">,</span>
-                                                                                                             <span class="n">batch_size</span><span class="p">,</span>
-                                                                                                             <span class="n">source_vocab_to_int</span><span class="p">[</span><span class="s1">&#39;&lt;PAD&gt;&#39;</span><span class="p">],</span>
-                                                                                                             <span class="n">target_vocab_to_int</span><span class="p">[</span><span class="s1">&#39;&lt;PAD&gt;&#39;</span><span class="p">]))</span>                                                                                                  
-<span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">Session</span><span class="p">(</span><span class="n">graph</span><span class="o">=</span><span class="n">train_graph</span><span class="p">)</span> <span class="k">as</span> <span class="n">sess</span><span class="p">:</span>
-    <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">global_variables_initializer</span><span class="p">())</span>
+# Split data to training and validation sets
+train_source = source_int_text[batch_size:]
+train_target = target_int_text[batch_size:]
+valid_source = source_int_text[:batch_size]
+valid_target = target_int_text[:batch_size]
+(valid_sources_batch, valid_targets_batch, valid_sources_lengths, valid_targets_lengths ) = next(get_batches(valid_source,
+                                                                                                             valid_target,
+                                                                                                             batch_size,
+                                                                                                             source_vocab_to_int[&#39;&lt;PAD&gt;&#39;],
+                                                                                                             target_vocab_to_int[&#39;&lt;PAD&gt;&#39;]))                                                                                                  
+with tf.Session(graph=train_graph) as sess:
+    sess.run(tf.global_variables_initializer())
 
-    <span class="k">for</span> <span class="n">epoch_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">epochs</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">batch_i</span><span class="p">,</span> <span class="p">(</span><span class="n">source_batch</span><span class="p">,</span> <span class="n">target_batch</span><span class="p">,</span> <span class="n">sources_lengths</span><span class="p">,</span> <span class="n">targets_lengths</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
-                <span class="n">get_batches</span><span class="p">(</span><span class="n">train_source</span><span class="p">,</span> <span class="n">train_target</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span>
-                            <span class="n">source_vocab_to_int</span><span class="p">[</span><span class="s1">&#39;&lt;PAD&gt;&#39;</span><span class="p">],</span>
-                            <span class="n">target_vocab_to_int</span><span class="p">[</span><span class="s1">&#39;&lt;PAD&gt;&#39;</span><span class="p">])):</span>
+    for epoch_i in range(epochs):
+        for batch_i, (source_batch, target_batch, sources_lengths, targets_lengths) in enumerate(
+                get_batches(train_source, train_target, batch_size,
+                            source_vocab_to_int[&#39;&lt;PAD&gt;&#39;],
+                            target_vocab_to_int[&#39;&lt;PAD&gt;&#39;])):
 
-            <span class="n">_</span><span class="p">,</span> <span class="n">loss</span> <span class="o">=</span> <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
-                <span class="p">[</span><span class="n">train_op</span><span class="p">,</span> <span class="n">cost</span><span class="p">],</span>
-                <span class="p">{</span><span class="n">input_data</span><span class="p">:</span> <span class="n">source_batch</span><span class="p">,</span>
-                 <span class="n">targets</span><span class="p">:</span> <span class="n">target_batch</span><span class="p">,</span>
-                 <span class="n">lr</span><span class="p">:</span> <span class="n">learning_rate</span><span class="p">,</span>
-                 <span class="n">target_sequence_length</span><span class="p">:</span> <span class="n">targets_lengths</span><span class="p">,</span>
-                 <span class="n">source_sequence_length</span><span class="p">:</span> <span class="n">sources_lengths</span><span class="p">,</span>
-                 <span class="n">keep_prob</span><span class="p">:</span> <span class="n">keep_probability</span><span class="p">})</span>
-
-
-            <span class="k">if</span> <span class="n">batch_i</span> <span class="o">%</span> <span class="n">display_step</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">batch_i</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            _, loss = sess.run(
+                [train_op, cost],
+                {input_data: source_batch,
+                 targets: target_batch,
+                 lr: learning_rate,
+                 target_sequence_length: targets_lengths,
+                 source_sequence_length: sources_lengths,
+                 keep_prob: keep_probability})
 
 
-                <span class="n">batch_train_logits</span> <span class="o">=</span> <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
-                    <span class="n">inference_logits</span><span class="p">,</span>
-                    <span class="p">{</span><span class="n">input_data</span><span class="p">:</span> <span class="n">source_batch</span><span class="p">,</span>
-                     <span class="n">source_sequence_length</span><span class="p">:</span> <span class="n">sources_lengths</span><span class="p">,</span>
-                     <span class="n">target_sequence_length</span><span class="p">:</span> <span class="n">targets_lengths</span><span class="p">,</span>
-                     <span class="n">keep_prob</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">})</span>
+            if batch_i % display_step == 0 and batch_i &gt; 0:
 
 
-                <span class="n">batch_valid_logits</span> <span class="o">=</span> <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
-                    <span class="n">inference_logits</span><span class="p">,</span>
-                    <span class="p">{</span><span class="n">input_data</span><span class="p">:</span> <span class="n">valid_sources_batch</span><span class="p">,</span>
-                     <span class="n">source_sequence_length</span><span class="p">:</span> <span class="n">valid_sources_lengths</span><span class="p">,</span>
-                     <span class="n">target_sequence_length</span><span class="p">:</span> <span class="n">valid_targets_lengths</span><span class="p">,</span>
-                     <span class="n">keep_prob</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">})</span>
+                batch_train_logits = sess.run(
+                    inference_logits,
+                    {input_data: source_batch,
+                     source_sequence_length: sources_lengths,
+                     target_sequence_length: targets_lengths,
+                     keep_prob: 1.0})
 
-                <span class="n">train_acc</span> <span class="o">=</span> <span class="n">get_accuracy</span><span class="p">(</span><span class="n">target_batch</span><span class="p">,</span> <span class="n">batch_train_logits</span><span class="p">)</span>
 
-                <span class="n">valid_acc</span> <span class="o">=</span> <span class="n">get_accuracy</span><span class="p">(</span><span class="n">valid_targets_batch</span><span class="p">,</span> <span class="n">batch_valid_logits</span><span class="p">)</span>
+                batch_valid_logits = sess.run(
+                    inference_logits,
+                    {input_data: valid_sources_batch,
+                     source_sequence_length: valid_sources_lengths,
+                     target_sequence_length: valid_targets_lengths,
+                     keep_prob: 1.0})
 
-                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Epoch </span><span class="si">{:&gt;3}</span><span class="s1"> Batch </span><span class="si">{:&gt;4}</span><span class="s1">/</span><span class="si">{}</span><span class="s1"> - Train Accuracy: </span><span class="si">{:&gt;6.4f}</span><span class="s1">, Validation Accuracy: </span><span class="si">{:&gt;6.4f}</span><span class="s1">, Loss: </span><span class="si">{:&gt;6.4f}</span><span class="s1">&#39;</span>
-                      <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">epoch_i</span><span class="p">,</span> <span class="n">batch_i</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">source_int_text</span><span class="p">)</span> <span class="o">//</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">train_acc</span><span class="p">,</span> <span class="n">valid_acc</span><span class="p">,</span> <span class="n">loss</span><span class="p">))</span>
+                train_acc = get_accuracy(target_batch, batch_train_logits)
 
-    <span class="c1"># Save Model</span>
-    <span class="n">saver</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">Saver</span><span class="p">()</span>
-    <span class="n">saver</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">sess</span><span class="p">,</span> <span class="n">save_path</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Model Trained and Saved&#39;</span><span class="p">)</span>
+                valid_acc = get_accuracy(valid_targets_batch, batch_valid_logits)
+
+                print(&#39;Epoch {:&gt;3} Batch {:&gt;4}/{} - Train Accuracy: {:&gt;6.4f}, Validation Accuracy: {:&gt;6.4f}, Loss: {:&gt;6.4f}&#39;
+                      .format(epoch_i, batch_i, len(source_int_text) // batch_size, train_acc, valid_acc, loss))
+
+    # Save Model
+    saver = tf.train.Saver()
+    saver.save(sess, save_path)
+    print(&#39;Model Trained and Saved&#39;)
 </pre></div>
 
 </div>
@@ -12939,27 +12976,29 @@ Default GPU Device: /gpu:0
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>Epoch   0 Batch  100/538 - Train Accuracy: 0.4240, Validation Accuracy: 0.4803, Loss: 2.1904
-Epoch   0 Batch  200/538 - Train Accuracy: 0.5357, Validation Accuracy: 0.5723, Loss: 1.5130
-Epoch   0 Batch  300/538 - Train Accuracy: 0.6157, Validation Accuracy: 0.6246, Loss: 0.8369
-Epoch   0 Batch  400/538 - Train Accuracy: 0.6403, Validation Accuracy: 0.6562, Loss: 0.6144
-Epoch   0 Batch  500/538 - Train Accuracy: 0.6841, Validation Accuracy: 0.6905, Loss: 0.4818
-Epoch   1 Batch  100/538 - Train Accuracy: 0.7314, Validation Accuracy: 0.7136, Loss: 0.3678
-Epoch   1 Batch  200/538 - Train Accuracy: 0.7309, Validation Accuracy: 0.7589, Loss: 0.2896
-Epoch   1 Batch  300/538 - Train Accuracy: 0.7958, Validation Accuracy: 0.7923, Loss: 0.2278
-Epoch   1 Batch  400/538 - Train Accuracy: 0.8531, Validation Accuracy: 0.8232, Loss: 0.1703
-Epoch   1 Batch  500/538 - Train Accuracy: 0.8789, Validation Accuracy: 0.8668, Loss: 0.1085
-Epoch   2 Batch  100/538 - Train Accuracy: 0.9070, Validation Accuracy: 0.8951, Loss: 0.0808
-Epoch   2 Batch  200/538 - Train Accuracy: 0.9184, Validation Accuracy: 0.9015, Loss: 0.0684
-Epoch   2 Batch  300/538 - Train Accuracy: 0.9135, Validation Accuracy: 0.9197, Loss: 0.0793
-Epoch   2 Batch  400/538 - Train Accuracy: 0.9315, Validation Accuracy: 0.9247, Loss: 0.0698
-Epoch   2 Batch  500/538 - Train Accuracy: 0.9483, Validation Accuracy: 0.9306, Loss: 0.0365
-Epoch   3 Batch  100/538 - Train Accuracy: 0.9396, Validation Accuracy: 0.9432, Loss: 0.0488
-Epoch   3 Batch  200/538 - Train Accuracy: 0.9408, Validation Accuracy: 0.9458, Loss: 0.0552
-Epoch   3 Batch  300/538 - Train Accuracy: 0.9310, Validation Accuracy: 0.9517, Loss: 0.0467
-Epoch   3 Batch  400/538 - Train Accuracy: 0.9546, Validation Accuracy: 0.9315, Loss: 0.0421
-Epoch   3 Batch  500/538 - Train Accuracy: 0.9616, Validation Accuracy: 0.9446, Loss: 0.0291
+<pre>Epoch   0 Batch  100/538 - Train Accuracy: 0.4203, Validation Accuracy: 0.4636, Loss: 1.2041
+Epoch   0 Batch  200/538 - Train Accuracy: 0.5398, Validation Accuracy: 0.5645, Loss: 0.7266
+Epoch   0 Batch  300/538 - Train Accuracy: 0.5986, Validation Accuracy: 0.5946, Loss: 0.6088
+Epoch   0 Batch  400/538 - Train Accuracy: 0.6226, Validation Accuracy: 0.6449, Loss: 0.5337
+Epoch   0 Batch  500/538 - Train Accuracy: 0.7132, Validation Accuracy: 0.6673, Loss: 0.4032
+Epoch   1 Batch  100/538 - Train Accuracy: 0.7793, Validation Accuracy: 0.7512, Loss: 0.2593
+Epoch   1 Batch  200/538 - Train Accuracy: 0.8098, Validation Accuracy: 0.7823, Loss: 0.1796
+Epoch   1 Batch  300/538 - Train Accuracy: 0.8638, Validation Accuracy: 0.8556, Loss: 0.1385
+Epoch   1 Batch  400/538 - Train Accuracy: 0.8730, Validation Accuracy: 0.8984, Loss: 0.1035
+Epoch   1 Batch  500/538 - Train Accuracy: 0.9316, Validation Accuracy: 0.9034, Loss: 0.0571
+Epoch   2 Batch  100/538 - Train Accuracy: 0.9295, Validation Accuracy: 0.9164, Loss: 0.0613
+Epoch   2 Batch  200/538 - Train Accuracy: 0.9430, Validation Accuracy: 0.9098, Loss: 0.0457
+Epoch   2 Batch  300/538 - Train Accuracy: 0.9366, Validation Accuracy: 0.9384, Loss: 0.0530
+Epoch   2 Batch  400/538 - Train Accuracy: 0.9462, Validation Accuracy: 0.9444, Loss: 0.0448
+Epoch   2 Batch  500/538 - Train Accuracy: 0.9609, Validation Accuracy: 0.9371, Loss: 0.0241
+Epoch   3 Batch  100/538 - Train Accuracy: 0.9648, Validation Accuracy: 0.9554, Loss: 0.0292
+Epoch   3 Batch  200/538 - Train Accuracy: 0.9641, Validation Accuracy: 0.9563, Loss: 0.0228
+Epoch   3 Batch  300/538 - Train Accuracy: 0.9661, Validation Accuracy: 0.9558, Loss: 0.0254
+Epoch   3 Batch  400/538 - Train Accuracy: 0.9570, Validation Accuracy: 0.9510, Loss: 0.0259
+Epoch   3 Batch  500/538 - Train Accuracy: 0.9771, Validation Accuracy: 0.9572, Loss: 0.0143
 Model Trained and Saved
+CPU times: user 4min 2s, sys: 34.8 s, total: 4min 36s
+Wall time: 2min 55s
 </pre>
 </div>
 </div>
