@@ -11905,7 +11905,7 @@ les états-unis est parfois occupé en janvier , et il est parfois chaud en nove
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[53]:</div>
+<div class="prompt input_prompt">In&nbsp;[107]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">text_to_ids</span><span class="p">(</span><span class="n">source_text</span><span class="p">,</span> <span class="n">target_text</span><span class="p">,</span> <span class="n">source_vocab_to_int</span><span class="p">,</span> <span class="n">target_vocab_to_int</span><span class="p">):</span>
@@ -11946,7 +11946,8 @@ les états-unis est parfois occupé en janvier , et il est parfois chaud en nove
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>Tests Passed
+<pre>{&#39;&lt;PAD&gt;&#39;: 0, &#39;&lt;EOS&gt;&#39;: 1, &#39;&lt;UNK&gt;&#39;: 2, &#39;&lt;GO&gt;&#39;: 3, &#39;pendant&#39;: 4, &#34;l&#39;&#34;: 5, &#39;neigeux&#39;: 6, &#39;chaud&#39;: 7, &#39;.&#39;: 8, &#39;généralement&#39;: 9, &#39;les&#39;: 10, &#39;novembre&#39;: 11, &#39;juin&#39;: 12, &#39;légère&#39;: 13, &#39;automne&#39;: 14, &#39;jersey&#39;: 15, &#39;parfois&#39;: 16, &#39;et&#39;: 17, &#39;il&#39;: 18, &#39;est&#39;: 19, &#39;california&#39;: 20, &#39;new&#39;: 21, &#39;froid&#39;: 22, &#39;fait&#39;: 23, &#39;états-unis&#39;: 24, &#39;calme&#39;: 25, &#39;gèle&#39;: 26, &#39;mars&#39;: 27, &#39;juillet&#39;: 28, &#39;habituellement&#39;: 29, &#39;septembre&#39;: 30, &#39;,&#39;: 31, &#39;en&#39;: 32, &#39;avril&#39;: 33}
+Tests Passed
 </pre>
 </div>
 </div>
@@ -12701,7 +12702,7 @@ keep_probability = 0.75</code></pre>
 </li>
 <li><p><code>num_layers = 2</code> - 3 is considered an optimal value for most rnn applications (increasing it further though often brings no benefits), it's also a value used in seq2seq tutorial <a href="https://www.tensorflow.org/tutorials/seq2seq">https://www.tensorflow.org/tutorials/seq2seq</a>. However I found that decreasing it to 2 decreases the training time from 4min 27s to  2min 55s at miniscule penelty of around 1 percent point so I left it as such.</p>
 </li>
-<li><p><code>learning_rate = 0.005</code> - Higher values caused accuracy to stall or drop, lower were taking too long to train</p>
+<li><p><code>learning_rate = 0.005</code> - Higher values caused accuracy to stall or drop, lower were taking too long to train. At 0.05 accuracy never climbe above 0.35, at 0.02 it stayed at .88. On the other hand at default for Adam 0.001 validation accuracy was at 0.9235 after 4 epochs.</p>
 </li>
 <li><p><code>keep_probability = 0.75</code>  - without DD model started to decrease validation accuracy as soon as on 3rd epoch (even though it was already around 90% so I could just stop training) while higher values yielded poorer results or required more training time.</p>
 </li>
@@ -12717,7 +12718,7 @@ keep_probability = 0.75</code></pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[102]:</div>
+<div class="prompt input_prompt">In&nbsp;[124]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Number of Epochs</span>
@@ -12754,7 +12755,7 @@ keep_probability = 0.75</code></pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[103]:</div>
+<div class="prompt input_prompt">In&nbsp;[125]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
@@ -12824,7 +12825,7 @@ keep_probability = 0.75</code></pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[104]:</div>
+<div class="prompt input_prompt">In&nbsp;[126]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
@@ -12877,7 +12878,7 @@ keep_probability = 0.75</code></pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[105]:</div>
+<div class="prompt input_prompt">In&nbsp;[127]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="o">%%</span><span class="k">time</span>
@@ -12976,29 +12977,29 @@ with tf.Session(graph=train_graph) as sess:
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>Epoch   0 Batch  100/538 - Train Accuracy: 0.4203, Validation Accuracy: 0.4636, Loss: 1.2041
-Epoch   0 Batch  200/538 - Train Accuracy: 0.5398, Validation Accuracy: 0.5645, Loss: 0.7266
-Epoch   0 Batch  300/538 - Train Accuracy: 0.5986, Validation Accuracy: 0.5946, Loss: 0.6088
-Epoch   0 Batch  400/538 - Train Accuracy: 0.6226, Validation Accuracy: 0.6449, Loss: 0.5337
-Epoch   0 Batch  500/538 - Train Accuracy: 0.7132, Validation Accuracy: 0.6673, Loss: 0.4032
-Epoch   1 Batch  100/538 - Train Accuracy: 0.7793, Validation Accuracy: 0.7512, Loss: 0.2593
-Epoch   1 Batch  200/538 - Train Accuracy: 0.8098, Validation Accuracy: 0.7823, Loss: 0.1796
-Epoch   1 Batch  300/538 - Train Accuracy: 0.8638, Validation Accuracy: 0.8556, Loss: 0.1385
-Epoch   1 Batch  400/538 - Train Accuracy: 0.8730, Validation Accuracy: 0.8984, Loss: 0.1035
-Epoch   1 Batch  500/538 - Train Accuracy: 0.9316, Validation Accuracy: 0.9034, Loss: 0.0571
-Epoch   2 Batch  100/538 - Train Accuracy: 0.9295, Validation Accuracy: 0.9164, Loss: 0.0613
-Epoch   2 Batch  200/538 - Train Accuracy: 0.9430, Validation Accuracy: 0.9098, Loss: 0.0457
-Epoch   2 Batch  300/538 - Train Accuracy: 0.9366, Validation Accuracy: 0.9384, Loss: 0.0530
-Epoch   2 Batch  400/538 - Train Accuracy: 0.9462, Validation Accuracy: 0.9444, Loss: 0.0448
-Epoch   2 Batch  500/538 - Train Accuracy: 0.9609, Validation Accuracy: 0.9371, Loss: 0.0241
-Epoch   3 Batch  100/538 - Train Accuracy: 0.9648, Validation Accuracy: 0.9554, Loss: 0.0292
-Epoch   3 Batch  200/538 - Train Accuracy: 0.9641, Validation Accuracy: 0.9563, Loss: 0.0228
-Epoch   3 Batch  300/538 - Train Accuracy: 0.9661, Validation Accuracy: 0.9558, Loss: 0.0254
-Epoch   3 Batch  400/538 - Train Accuracy: 0.9570, Validation Accuracy: 0.9510, Loss: 0.0259
-Epoch   3 Batch  500/538 - Train Accuracy: 0.9771, Validation Accuracy: 0.9572, Loss: 0.0143
+<pre>Epoch   0 Batch  100/538 - Train Accuracy: 0.5035, Validation Accuracy: 0.5465, Loss: 1.2681
+Epoch   0 Batch  200/538 - Train Accuracy: 0.5797, Validation Accuracy: 0.5902, Loss: 0.7341
+Epoch   0 Batch  300/538 - Train Accuracy: 0.6577, Validation Accuracy: 0.6662, Loss: 0.5494
+Epoch   0 Batch  400/538 - Train Accuracy: 0.7083, Validation Accuracy: 0.7111, Loss: 0.4163
+Epoch   0 Batch  500/538 - Train Accuracy: 0.8111, Validation Accuracy: 0.7828, Loss: 0.2542
+Epoch   1 Batch  100/538 - Train Accuracy: 0.9035, Validation Accuracy: 0.8730, Loss: 0.1328
+Epoch   1 Batch  200/538 - Train Accuracy: 0.9156, Validation Accuracy: 0.9064, Loss: 0.0855
+Epoch   1 Batch  300/538 - Train Accuracy: 0.9340, Validation Accuracy: 0.9292, Loss: 0.0693
+Epoch   1 Batch  400/538 - Train Accuracy: 0.9401, Validation Accuracy: 0.9237, Loss: 0.0603
+Epoch   1 Batch  500/538 - Train Accuracy: 0.9583, Validation Accuracy: 0.9402, Loss: 0.0376
+Epoch   2 Batch  100/538 - Train Accuracy: 0.9670, Validation Accuracy: 0.9487, Loss: 0.0317
+Epoch   2 Batch  200/538 - Train Accuracy: 0.9646, Validation Accuracy: 0.9373, Loss: 0.0269
+Epoch   2 Batch  300/538 - Train Accuracy: 0.9561, Validation Accuracy: 0.9505, Loss: 0.0346
+Epoch   2 Batch  400/538 - Train Accuracy: 0.9766, Validation Accuracy: 0.9613, Loss: 0.0238
+Epoch   2 Batch  500/538 - Train Accuracy: 0.9716, Validation Accuracy: 0.9620, Loss: 0.0215
+Epoch   3 Batch  100/538 - Train Accuracy: 0.9834, Validation Accuracy: 0.9679, Loss: 0.0207
+Epoch   3 Batch  200/538 - Train Accuracy: 0.9645, Validation Accuracy: 0.9510, Loss: 0.0354
+Epoch   3 Batch  300/538 - Train Accuracy: 0.9617, Validation Accuracy: 0.9677, Loss: 0.0296
+Epoch   3 Batch  400/538 - Train Accuracy: 0.9734, Validation Accuracy: 0.9693, Loss: 0.0194
+Epoch   3 Batch  500/538 - Train Accuracy: 0.9863, Validation Accuracy: 0.9631, Loss: 0.0142
 Model Trained and Saved
-CPU times: user 4min 2s, sys: 34.8 s, total: 4min 36s
-Wall time: 2min 55s
+CPU times: user 3min 59s, sys: 34.8 s, total: 4min 34s
+Wall time: 2min 53s
 </pre>
 </div>
 </div>
